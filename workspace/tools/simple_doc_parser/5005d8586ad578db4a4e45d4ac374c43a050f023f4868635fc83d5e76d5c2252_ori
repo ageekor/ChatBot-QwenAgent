@@ -1,0 +1,719 @@
+[
+  {
+    "page_num": 1,
+    "content": [
+      {
+        "text": "# Quickstart",
+        "token": 3
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "This guide helps you quickly start using Qwen3. ",
+        "token": 12
+      },
+      {
+        "text": "We provide examples of [Hugging Face Transformers](https://github.com/huggingface/transformers) as well as [ModelScope](https://github.com/modelscope/modelscope), and [vLLM](https://github.com/vllm-project/vllm) for deployment.",
+        "token": 58
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "You can find Qwen3 models in [the Qwen3 collection](https://huggingface.co/collections/Qwen/qwen3-67dd247413f0e2e4f653967f) at Hugging Face Hub and [the Qwen3 collection](https://www.modelscope.cn/collections/Qwen3-9743180bdc6b48) at ModelScope.",
+        "token": 96
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "## Transformers",
+        "token": 2
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "To get a quick start with Qwen3, you can try the inference with `transformers` first.",
+        "token": 22
+      },
+      {
+        "text": "Make sure that you have installed `transformers>=4.51.0`.",
+        "token": 17
+      },
+      {
+        "text": "We advise you to use Python 3.10 or higher, and PyTorch 2.6 or higher.",
+        "token": 25
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "The following is a very simple code snippet showing how to run Qwen3-8B:",
+        "token": 19
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "```python",
+        "token": 2
+      },
+      {
+        "text": "from transformers import AutoModelForCausalLM, AutoTokenizer",
+        "token": 12
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "model_name = \"Qwen/Qwen3-8B\"",
+        "token": 13
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "# load the tokenizer and the model",
+        "token": 7
+      },
+      {
+        "text": "model = AutoModelForCausalLM.from_pretrained(",
+        "token": 12
+      },
+      {
+        "text": "    model_name,",
+        "token": 4
+      },
+      {
+        "text": "    torch_dtype=\"auto\",",
+        "token": 6
+      },
+      {
+        "text": "    device_map=\"auto\"",
+        "token": 6
+      },
+      {
+        "text": ")",
+        "token": 1
+      },
+      {
+        "text": "tokenizer = AutoTokenizer.from_pretrained(model_name)",
+        "token": 10
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "# prepare the model input",
+        "token": 5
+      },
+      {
+        "text": "prompt = \"Give me a short introduction to large language models.\"",
+        "token": 13
+      },
+      {
+        "text": "messages = [",
+        "token": 3
+      },
+      {
+        "text": "    {\"role\": \"user\", \"content\": prompt},",
+        "token": 12
+      },
+      {
+        "text": "]",
+        "token": 1
+      },
+      {
+        "text": "text = tokenizer.apply_chat_template(",
+        "token": 7
+      },
+      {
+        "text": "    messages,",
+        "token": 3
+      },
+      {
+        "text": "    tokenize=False,",
+        "token": 4
+      },
+      {
+        "text": "    add_generation_prompt=True,",
+        "token": 6
+      },
+      {
+        "text": "    enable_thinking=True, # Switches between thinking and non-thinking modes. Default is True.",
+        "token": 20
+      },
+      {
+        "text": ")",
+        "token": 1
+      },
+      {
+        "text": "model_inputs = tokenizer([text], return_tensors=\"pt\").to(model.device)",
+        "token": 16
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "# conduct text completion",
+        "token": 4
+      },
+      {
+        "text": "generated_ids = model.generate(",
+        "token": 6
+      },
+      {
+        "text": "    **model_inputs,",
+        "token": 5
+      },
+      {
+        "text": "    max_new_tokens=32768",
+        "token": 10
+      },
+      {
+        "text": ")",
+        "token": 1
+      },
+      {
+        "text": "output_ids = generated_ids[0][len(model_inputs.input_ids[0]):].tolist() ",
+        "token": 20
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "# parse thinking content",
+        "token": 4
+      },
+      {
+        "text": "try:",
+        "token": 2
+      },
+      {
+        "text": "    # rindex finding 151668 (</think>)",
+        "token": 16
+      },
+      {
+        "text": "    index = len(output_ids) - output_ids[::-1].index(151668)",
+        "token": 22
+      },
+      {
+        "text": "except ValueError:",
+        "token": 3
+      },
+      {
+        "text": "    index = 0",
+        "token": 5
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "thinking_content = tokenizer.decode(output_ids[:index], skip_special_tokens=True).strip(\"\\n\")",
+        "token": 19
+      },
+      {
+        "text": "content = tokenizer.decode(output_ids[index:], skip_special_tokens=True).strip(\"\\n\")",
+        "token": 17
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "print(\"thinking content:\", thinking_content)",
+        "token": 8
+      },
+      {
+        "text": "print(\"content:\", content)",
+        "token": 6
+      },
+      {
+        "text": "```",
+        "token": 1
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "Qwen3 will think before respond, similar to QwQ models.",
+        "token": 15
+      },
+      {
+        "text": "This means the model will use its reasoning abilities to enhance the quality of generated responses.",
+        "token": 17
+      },
+      {
+        "text": "The model will first generate thinking content wrapped in a `<think>...</think>` block, followed by the final response.",
+        "token": 24
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "-   Hard Switch:",
+        "token": 5
+      },
+      {
+        "text": "    To strictly disable the model's thinking behavior, aligning its functionality with the previous Qwen2.5-Instruct models, you can set `enable_thinking=False` when formatting the text. ",
+        "token": 41
+      },
+      {
+        "text": "    ```python",
+        "token": 3
+      },
+      {
+        "text": "    text = tokenizer.apply_chat_template(",
+        "token": 8
+      },
+      {
+        "text": "        messages,",
+        "token": 3
+      },
+      {
+        "text": "        tokenize=False,",
+        "token": 4
+      },
+      {
+        "text": "        add_generation_prompt=True,",
+        "token": 6
+      },
+      {
+        "text": "        enable_thinking=False,  # Setting enable_thinking=False disables thinking mode",
+        "token": 16
+      },
+      {
+        "text": "    )",
+        "token": 2
+      },
+      {
+        "text": "    ```",
+        "token": 2
+      },
+      {
+        "text": "    It can be particularly useful in scenarios where disabling thinking is essential for enhancing efficiency.",
+        "token": 17
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "-   Soft Switch:",
+        "token": 5
+      },
+      {
+        "text": "    Qwen3 also understands the user's instruction on its thinking behavior, in particular, the soft switch `/think` and `/no_think`.",
+        "token": 30
+      },
+      {
+        "text": "    You can add them to user prompts or system messages to switch the model's thinking mode from turn to turn. ",
+        "token": 24
+      },
+      {
+        "text": "    The model will follow the most recent instruction in multi-turn conversations.",
+        "token": 14
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": ":::{note}",
+        "token": 4
+      },
+      {
+        "text": "For thinking mode, use Temperature=0.6, TopP=0.95, TopK=20, and MinP=0 (the default setting in `generation_config.json`).",
+        "token": 40
+      },
+      {
+        "text": "DO NOT use greedy decoding, as it can lead to performance degradation and endless repetitions. ",
+        "token": 18
+      },
+      {
+        "text": "For more detailed guidance, please refer to the Best Practices section.",
+        "token": 13
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "For non-thinking mode, we suggest using Temperature=0.7, TopP=0.8, TopK=20, and MinP=0. ",
+        "token": 34
+      },
+      {
+        "text": ":::",
+        "token": 2
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "## ModelScope",
+        "token": 3
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "To tackle with downloading issues, we advise you to try [ModelScope](https://github.com/modelscope/modelscope).",
+        "token": 24
+      },
+      {
+        "text": "Before starting, you need to install `modelscope` with `pip`. ",
+        "token": 16
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "`modelscope` adopts a programmatic interface similar (but not identical) to `transformers`.",
+        "token": 20
+      },
+      {
+        "text": "For basic usage, you can simply change the first line of code above to the following:",
+        "token": 18
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "```python",
+        "token": 2
+      },
+      {
+        "text": "from modelscope import AutoModelForCausalLM, AutoTokenizer",
+        "token": 13
+      },
+      {
+        "text": "```",
+        "token": 1
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "For more information, please refer to [the documentation of `modelscope`](https://www.modelscope.cn/docs).",
+        "token": 23
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "## vLLM ",
+        "token": 5
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "vLLM is a fast and easy-to-use framework for LLM inference and serving. ",
+        "token": 19
+      },
+      {
+        "text": "In the following, we demonstrate how to build a OpenAI-API compatible API service with vLLM.",
+        "token": 21
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "First, make sure you have `vllm>=0.8.5` installed.",
+        "token": 19
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "Run the following code to build up a vLLM service. ",
+        "token": 14
+      },
+      {
+        "text": "Here we take Qwen3-8B as an example:",
+        "token": 13
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "```bash",
+        "token": 2
+      },
+      {
+        "text": "vllm serve Qwen/Qwen3-8B --enable-reasoning --reasoning-parser deepseek_r1",
+        "token": 25
+      },
+      {
+        "text": "```",
+        "token": 1
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "Then, you can use the [create chat interface](https://platform.openai.com/docs/api-reference/chat/completions/create) to communicate with Qwen:",
+        "token": 32
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "::::{tab-set}",
+        "token": 5
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": ":::{tab-item} curl",
+        "token": 6
+      },
+      {
+        "text": "```shell",
+        "token": 2
+      },
+      {
+        "text": "curl http://localhost:8000/v1/chat/completions -H \"Content-Type: application/json\" -d '{",
+        "token": 27
+      },
+      {
+        "text": "  \"model\": \"Qwen/Qwen3-8B\",",
+        "token": 14
+      },
+      {
+        "text": "  \"messages\": [",
+        "token": 5
+      },
+      {
+        "text": "    {\"role\": \"user\", \"content\": \"Give me a short introduction to large language models.\"}",
+        "token": 22
+      },
+      {
+        "text": "  ],",
+        "token": 2
+      },
+      {
+        "text": "  \"temperature\": 0.6,",
+        "token": 9
+      },
+      {
+        "text": "  \"top_p\": 0.95,",
+        "token": 11
+      },
+      {
+        "text": "  \"top_k\": 20,",
+        "token": 9
+      },
+      {
+        "text": "  \"max_tokens\": 32768",
+        "token": 11
+      },
+      {
+        "text": "}'",
+        "token": 1
+      },
+      {
+        "text": "```",
+        "token": 1
+      },
+      {
+        "text": ":::",
+        "token": 2
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": ":::{tab-item} Python",
+        "token": 6
+      },
+      {
+        "text": "You can use the API client with the `openai` Python SDK as shown below:",
+        "token": 18
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "```python",
+        "token": 2
+      },
+      {
+        "text": "from openai import OpenAI",
+        "token": 6
+      },
+      {
+        "text": "# Set OpenAI's API key and API base to use vLLM's API server.",
+        "token": 19
+      },
+      {
+        "text": "openai_api_key = \"EMPTY\"",
+        "token": 8
+      },
+      {
+        "text": "openai_api_base = \"http://localhost:8000/v1\"",
+        "token": 17
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "client = OpenAI(",
+        "token": 5
+      },
+      {
+        "text": "    api_key=openai_api_key,",
+        "token": 8
+      },
+      {
+        "text": "    base_url=openai_api_base,",
+        "token": 8
+      },
+      {
+        "text": ")",
+        "token": 1
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "chat_response = client.chat.completions.create(",
+        "token": 10
+      },
+      {
+        "text": "    model=\"Qwen/Qwen3-8B\",",
+        "token": 12
+      },
+      {
+        "text": "    messages=[",
+        "token": 3
+      },
+      {
+        "text": "        {\"role\": \"user\", \"content\": \"Give me a short introduction to large language models.\"},",
+        "token": 22
+      },
+      {
+        "text": "    ],",
+        "token": 2
+      },
+      {
+        "text": "    max_tokens=32768,",
+        "token": 10
+      },
+      {
+        "text": "    temperature=0.6,",
+        "token": 7
+      },
+      {
+        "text": "    top_p=0.95,",
+        "token": 9
+      },
+      {
+        "text": "    extra_body={",
+        "token": 4
+      },
+      {
+        "text": "        \"top_k\": 20,",
+        "token": 9
+      },
+      {
+        "text": "    }",
+        "token": 2
+      },
+      {
+        "text": ")",
+        "token": 1
+      },
+      {
+        "text": "print(\"Chat response:\", chat_response)",
+        "token": 8
+      },
+      {
+        "text": "```",
+        "token": 1
+      },
+      {
+        "text": "::::",
+        "token": 1
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "While the soft switch is always available, the hard switch is also available in vLLM through the following configuration to the API call.",
+        "token": 27
+      },
+      {
+        "text": "For more usage, please refer to [our document on vLLM](../deployment/vllm).",
+        "token": 21
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "## Next Step",
+        "token": 3
+      },
+      {
+        "text": "",
+        "token": 0
+      },
+      {
+        "text": "Now, you can have fun with Qwen3 models. ",
+        "token": 13
+      },
+      {
+        "text": "Would love to know more about its usage? ",
+        "token": 10
+      },
+      {
+        "text": "Feel free to check other documents in this documentation.",
+        "token": 10
+      }
+    ]
+  }
+]
