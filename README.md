@@ -11,6 +11,9 @@ A powerful AI chatbot system built with Qwen Agent framework, featuring RAG (Ret
   - MySQL database querying
   - Code interpretation
   - Knowledge base management
+- ⚡ MCP (Model Control Protocol) Services:
+  - Real-time time service with timezone support
+  - Server-Sent Events (SSE) for live data streaming
 - 🌐 FastAPI-based RAG service
 - 📚 Vector-based knowledge storage using FAISS
 
@@ -29,8 +32,7 @@ A powerful AI chatbot system built with Qwen Agent framework, featuring RAG (Ret
 
 ## Prerequisites
 
-- Python 3.8+
-- MySQL database
+- Python 3.10+
 - DashScope API key
 
 ## Installation
@@ -57,8 +59,8 @@ pip install -r requirements.txt
 python rag_service.py
 ```
 2. Run scripts to add documents to knowledge base
-```
-python scripts/add_document.py docs/file.txt
+```bash
+python scripts/add_document.py docs/我的世界观.txt
 ```
 3. Run the client:
 ```bash
@@ -78,6 +80,9 @@ python client.py
 - **MySQL Query**: Execute SQL queries on your database
 - **RAG Search**: Search through your knowledge base
 - **Knowledge Base Management**: Add and manage documents in your knowledge base
+- **MCP Services**:
+  - **Time Service**: Real-time time information with timezone support (Asia/Shanghai), enabling accurate time-based operations
+  - **Fetch Service**: Advanced Server-Sent Events (SSE) integration for real-time data streaming and live updates
 
 ## Configuration
 
